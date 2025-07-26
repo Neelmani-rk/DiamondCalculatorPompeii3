@@ -623,9 +623,46 @@ def main():
         page_icon="💎",
         layout="wide"
     )
+    with st.sidebar:
+        st.title("📘 Logic & Rules Summary")
+        
+        st.markdown("### 🔄 Workflow")
+        st.markdown("- Enter SKU")
+        st.markdown("- Get ChannelAdvisor Token")
+        st.markdown("- Fetch Product & Attributes")
     
-    st.title("💎 Complete Diamond BOM Calculator with Strict Type Separation")
-    st.markdown("### Comprehensive Diamond Analysis Using Complete Pricing Database with Exact Value Matching")
+        st.markdown("### 🧠 Diamond Type Logic")
+        st.markdown("- If `Title` or `Main Stone` contains 'lab grown':")
+        st.markdown("  → Type = Lab Grown")
+        st.markdown("- Else → Type = Natural Diamond")
+    
+        st.markdown("### 🧮 Carat Calculation")
+        st.markdown("- Parse Pick fields: e.g., `29+7`")
+        st.markdown("- Match ID: `LD+7` or `ND+7`")
+        st.markdown("- Lookup `caratPerUnit`")
+        st.markdown("- Total = Quantity × caratPerUnit")
+    
+        st.markdown("### 📏 Matching Rules")
+        st.markdown("- **Exact match** preferred")
+        st.markdown("- If not found → Use **next higher** value")
+    
+        st.markdown("### 🧪 Validation")
+        st.markdown("- Compare Calculated Carat to:")
+        st.markdown("  → `Exact Carat Total Weight`")
+        st.markdown("- If difference > 0.1 carats → ⚠️ alert")
+    
+        st.markdown("### 💰 Price Lookup")
+        st.markdown("- Fetch from pricing DB:")
+        st.markdown("  → `itemPrice`, `caratPerUnit`")
+        st.markdown("- Compute total: Quantity × itemPrice")
+    
+        st.markdown("### 🤖 Gemini Analysis")
+        st.markdown("- Uses full pricing DB")
+        st.markdown("- Applies same strict rules")
+        st.markdown("- Returns JSON + Explanation")
+        
+        st.title("💎 Complete Diamond BOM Calculator with Strict Type Separation")
+        st.markdown("### Comprehensive Diamond Analysis Using Complete Pricing Database with Exact Value Matching")
     
     # Initialize services
     if 'ca_service' not in st.session_state:
