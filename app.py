@@ -697,11 +697,7 @@ def main():
                 if understanding_text:
                     display_comprehensive_understanding(understanding_text, sku_input)
             
-            # Complete Diamond Processing
-            with st.spinner("Processing with AI using complete database and strict type separation..."):
-                processed_data = process_comprehensive_product_data(product_details)
-                if processed_data:
-                    display_comprehensive_analysis(processed_data)
+            
 
 def display_product_information(data: Dict[str, Any], sku: str):
     """Display comprehensive product information"""
