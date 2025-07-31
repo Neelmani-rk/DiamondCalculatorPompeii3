@@ -108,11 +108,11 @@ LAB_GROWN_DIAMOND_PRICES = [
 # Configuration
 class Config:
     CA_BASE_URL = "https://api.channeladvisor.com/v1"
-    CA_CLIENT_ID = "1aad9geoo60y5e8z0jr496fwcq1ybti4"
-    CA_CLIENT_SECRET = "jHlILAQ-jU22FwsWtfZ1zQ"
-    CA_REFRESH_TOKEN = "mKJx-l2zTVtY8YFQ38oN6tpMIPTdBgxqql191I1KjzI"
+    CA_CLIENT_ID = ""
+    CA_CLIENT_SECRET = ""
+    CA_REFRESH_TOKEN = ""
     
-    GEMINI_API_KEY = "AIzaSyC6zsmC4Dj6L8zsPA2Byw59fR1OQsQiPM4"
+    GEMINI_API_KEY = ""
     GEMINI_MODEL = "gemini-2.0-flash"
     GEMINI_API_URL = f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent?key={GEMINI_API_KEY}"
     
