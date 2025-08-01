@@ -108,11 +108,14 @@ LAB_GROWN_DIAMOND_PRICES = [
 # Configuration
 class Config:
     CA_BASE_URL = "https://api.channeladvisor.com/v1"
-    CA_CLIENT_ID = ""
-    CA_CLIENT_SECRET = ""
-    CA_REFRESH_TOKEN = ""
+    # --- MODIFIED: Fetch secrets from st.secrets ---
+    CA_CLIENT_ID = st.secrets["ca"]["client_id"]
+    CA_CLIENT_SECRET = st.secrets["ca"]["client_secret"]
+    CA_REFRESH_TOKEN = st.secrets["ca"]["refresh_token"]
     
-    GEMINI_API_KEY = ""
+    GEMINI_API_KEY = st.secrets["gemini"]["api_key"]
+    # --- END MODIFICATION ---
+    
     GEMINI_MODEL = "gemini-2.0-flash"
     GEMINI_API_URL = f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent?key={GEMINI_API_KEY}"
     
@@ -417,7 +420,7 @@ COMPLETE DIAMOND PRICING DATABASE:
 STRICT ANALYSIS RULES:
 1. NATURAL DIAMOND vs LAB GROWN: Use ONLY the respective dataset - never mix them
 2. EXACT VALUE MATCHING: If exact caratPerUnit not found, use the NEXT HIGHER value from the dataset
-3. PICK FIELD PRIORITY: Extract from Pick 1, Pick 2, Pick 3 fields STRICTLY
+3. PICK FIELD PRIORITY: Extract from Pick 1, Pick 2, Pick 3 fields STRICTLY 
 4. TOTAL CARAT VALIDATION: Compare calculated total with Exact Carat Total Weight
 5. MISSING VALUES: If significant difference, consider Title and Description to adjust
 
@@ -432,7 +435,7 @@ CALCULATED TOTALS:
 EXAMPLE CALCULATIONS (using database):
 - "29+7" = 29 diamonds × LD+7 (caratPerUnit: 0.033) = {29 * 0.033:.3f} carats
 - "58+6" = 58 diamonds × LD+6 (caratPerUnit: 0.022) = {58 * 0.022:.3f} carats
-
+- "2+1/3\r\n1+3/8" = 2 diamonds × ND0.33 (caratPerUnit: 0.33) = {2 * 0.33:.3f} carats 1 diamonds × ND0.4 (caratPerUnit: 0.4) = {1 * 0.4:.3f} carats
 PRODUCT INFORMATION:
 {json.dumps(data, indent=2)}
 
@@ -624,46 +627,49 @@ def main():
         layout="wide"
     )
     with st.sidebar:
-        st.title("📘 Logic & Rules Summary")
-        
-        st.markdown("### 🔄 Workflow")
-        st.markdown("- Enter SKU")
-        st.markdown("- Get ChannelAdvisor Token")
-        st.markdown("- Fetch Product & Attributes")
-    
-        st.markdown("### 🧠 Diamond Type Logic")
-        st.markdown("- If `Title` or `Main Stone` contains 'lab grown':")
-        st.markdown("  → Type = Lab Grown")
-        st.markdown("- Else → Type = Natural Diamond")
-    
-        st.markdown("### 🧮 Carat Calculation")
-        st.markdown("- Parse Pick fields: e.g., `29+7`")
-        st.markdown("- Match ID: `LD+7` or `ND+7`")
-        st.markdown("- Lookup `caratPerUnit`")
-        st.markdown("- Total = Quantity × caratPerUnit")
-    
-        st.markdown("### 📏 Matching Rules")
-        st.markdown("- **Exact match** preferred")
-        st.markdown("- If not found → Use **next higher** value")
-    
-        st.markdown("### 🧪 Validation")
-        st.markdown("- Compare Calculated Carat to:")
-        st.markdown("  → `Exact Carat Total Weight`")
-        st.markdown("- If difference > 0.1 carats → ⚠️ alert")
-    
-        st.markdown("### 💰 Price Lookup")
-        st.markdown("- Fetch from pricing DB:")
-        st.markdown("  → `itemPrice`, `caratPerUnit`")
-        st.markdown("- Compute total: Quantity × itemPrice")
-    
-        st.markdown("### 🤖 Gemini Analysis")
-        st.markdown("- Uses full pricing DB")
-        st.markdown("- Applies same strict rules")
-        st.markdown("- Returns JSON + Explanation")
-        
-        st.title("💎 Complete Diamond BOM Calculator with Strict Type Separation")
-        st.markdown("### Comprehensive Diamond Analysis Using Complete Pricing Database with Exact Value Matching")
-    
+        st.title("📘 App Logic and Rules")
+
+        st.markdown("""
+        This Streamlit application is a "Complete Diamond BOM (Bill of Materials) Calculator." Its primary function is to take a product SKU, fetch its details from ChannelAdvisor, and then perform a detailed analysis of the diamonds in that product.
+        """)
+
+        st.markdown("---")
+
+        st.markdown("### 🔄 Workflow Breakdown")
+        st.markdown("""
+        * **User Input**: The user enters a product SKU and clicks "Search."
+        * **Data Fetching**: The app connects to the ChannelAdvisor API to get the product's unique ID from the SKU and then fetches all product details, including title, description, and custom attributes like "Pick 1," "Pick 2," and "Exact Carat Total Weight."
+        * **Diamond Analysis & Calculation**: This is the core of the application.
+            * **`DiamondAnalysisService`**: Calculates the total carat weight from "Pick" fields (e.g., `29+7`). It determines if diamonds are Natural or Lab-Grown based on keywords and uses the correct price data to find the `caratPerUnit` for each diamond size.
+            * **`DiamondPricingService`**: Calculates the price by finding the closest (or next highest) match for a diamond's carat value in its database to retrieve the `itemPrice`.
+            * **`GeminiService`**: The AI component sends all product data to the Gemini API with a detailed prompt, the entire pricing database, and strict rules. Gemini analyzes the product, provides a human-readable explanation, and extracts the data into a structured JSON format.
+        * **Displaying Results**: The app shows the raw product data, a "Carat Analysis" comparing calculated vs. listed weight, and the final detailed analysis from Gemini.
+        """)
+
+        st.markdown("---")
+
+        st.markdown("### ⚖️ Extraction and Calculation Rules")
+
+        st.markdown("#### Diamond Type Logic")
+        st.markdown("""
+        * **Strict Separation**: The system must strictly separate Natural Diamonds from Lab-Grown Diamonds and use only the corresponding dataset for each.
+        * **Identification**: A product is "Lab Grown" if the `Title` or `Main Stone` attribute contains 'lab grown'. Otherwise, it defaults to "Natural Diamond".
+        """)
+
+        st.markdown("#### Calculation and Matching Rules")
+        st.markdown("""
+        * **Pick Field Priority**: Diamond data is extracted strictly from the "Pick 1," "Pick 2," and "Pick 3" fields.
+        * **Parsing Pick Fields**: Entries like `29+7` are interpreted as 29 (quantity) of diamonds with a size corresponding to product ID `+7` (e.g., `ND+7` or `LD+7`).
+        * **Database Lookup**: The system uses the product ID to look up the exact `caratPerUnit` and `itemPrice`.
+        * **Exact or Next Higher Match**: An exact match for a carat value is preferred. If not found, the next higher available value is used.
+        * **Total Carat Calculation**: The total weight is the sum of (`quantity` × `caratPerUnit`) for all diamond entries.
+        """)
+
+        st.markdown("#### Validation and Discrepancy Rules")
+        st.markdown("""
+        * **Total Carat Validation**: The calculated total carat weight is compared to the `Exact Carat Total Weight` attribute.
+        * **Discrepancy Alert**: If the difference between the calculated and exact total is over 0.1 carats, it's flagged for manual review.
+        """)
     # Initialize services
     if 'ca_service' not in st.session_state:
         st.session_state.ca_service = ChannelAdvisorService()
