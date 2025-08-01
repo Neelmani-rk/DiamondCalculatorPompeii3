@@ -381,7 +381,7 @@ class GeminiService:
                 "temperature": 0.1,
                 "topK": 1,
                 "topP": 0.1,
-                "maxOutputTokens": 1024,
+                "maxOutputTokens": 8192,
             }
         }
         
@@ -493,7 +493,7 @@ Use the complete pricing database for ALL calculations. Be precise and professio
                 "temperature": 0.1,
                 "topK": 1,
                 "topP": 0.1,
-                "maxOutputTokens": 2048,
+                "maxOutputTokens": 8192,
             }
         }
         
